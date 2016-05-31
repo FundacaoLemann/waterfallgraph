@@ -25,10 +25,10 @@ class WaterfallGraph(object):
         - data: data frame
         - metric_type: enum['absolute', 'relative']
         - metric_name: Metric name in lower case and no spaces to show in the graph
-        - metric_cols: waterfall metric (Eg.: Rides Growth [%])
-          - relative: ['boarded','boarded_1_period'] >> Growth = boarded/boarded_1_period
+        - metric_cols: waterfall metric (Eg.: Rides [0] [%])
+          - relative: ['boarded','boarded_1_period'] >> [0] = boarded/boarded_1_period
           - absolute: ['boarded'] >> boarded
-        - split_dimension: dimension to break (Eg.: dimension = country so waterfall shows contribution to total growth by country)
+        - split_dimension: dimension to break (Eg.: dimension = country so waterfall shows contribution to total [0] by country)
         - kwargs:
           - ax = axis array of figure
           - title
@@ -48,11 +48,11 @@ class WaterfallGraph(object):
         data = data[data[split_dimension].notnull()]
         data[metric_name] = ((data[metric_cols[0]] / data[metric_cols[1]] - 1) * (data[metric_cols[1]] / data[metric_cols[1]].sum())) * 100
         data = data[[split_dimension, metric_name]].set_index(split_dimension)
-        total = data.sum().growth
+        total = data.sum()[0]
         trans = self.get_ranking_by_impact(data, metric_name)
 
-        trans.loc["Others"] = total - trans.sum().growth
-        blank = trans.growth.cumsum().shift(1).fillna(0)
+        trans.loc["Others"] = total - trans.sum()[0]
+        blank = trans[metric_name].cumsum().shift(1).fillna(0)
 
         col_name = "Total {}".format(formatted_metric_name)
         trans.loc[col_name] = total
@@ -69,7 +69,7 @@ class WaterfallGraph(object):
             kind='bar', stacked=True, bottom=blank, legend=None, title=kwargs.get('title', None), ax=kwargs.get('ax', None), sharex=False)
         my_plot.plot(step.index, step.values, '#808080')
         my_plot.axes.get_yaxis().set_visible(False)
-        y_height = trans.growth.cumsum().shift(1).fillna(0)
+        y_height = trans[metric_name].cumsum().shift(1).fillna(0)
 
         max = trans[metric_name].max()
         neg_offset = max / 25
