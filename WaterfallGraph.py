@@ -5,6 +5,7 @@ import pandas as pd
 
 class WaterfallGraph(object):
 
+    def __init__(self, num_fields = 10):
         self.num_fields = num_fields
 
     def get_ranking_by_impact(self, df, metric_name):
