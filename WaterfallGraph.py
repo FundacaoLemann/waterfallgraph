@@ -5,19 +5,24 @@ import pandas as pd
 
 class WaterfallGraph(object):
 
-    def __init__(self):
-        pass
+        self.num_fields = num_fields
 
     def get_ranking_by_impact(self, df, metric_name):
 
         abs_metric_col = '{}_abs'.format(metric_name)
         df[abs_metric_col] = abs(df[metric_name])
         df = df.sort_values(abs_metric_col, ascending=False)
-        df = df.head(10)
+        df = df.head(self.num_fields)
         df = pd.DataFrame(df[metric_name])
         return df
 
-    def plot(self, data=None, metric_type=None, metric_name=None, metric_cols=None, split_dimension=None, **kwargs):
+    def plot(self,
+             data=None,
+             metric_type=None,
+             metric_name=None,
+             metric_cols=None,
+             split_dimension=None,
+             **kwargs):
         """
         Generates Waterfall inside a figure
 
